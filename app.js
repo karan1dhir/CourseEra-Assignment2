@@ -36,6 +36,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(auth);
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/dishes", dishRouter);
 app.use("/promotions", promoRouter);
