@@ -24,6 +24,7 @@ var dishRouter = require("./routes/dishRouter");
 var promoRouter = require("./routes/promoRouter");
 var leaderRouter = require("./routes/leaderRouter");
 
+
 var app = express();
 
 // view engine setup
@@ -45,32 +46,18 @@ app.use(session({
   resave: false,
   store: new FileStore()
 }));
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
 
 function auth(req, res, next) {
   console.log(req.session);
   if (!req.session.user) {
-    var authHeader = req.headers.authorization;
-    if (!authHeader) {
-      var err = new Error('You are not authenticated !');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      return next(err);
-    } else {
-      var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-      var username = auth[0];
-      var password = auth[1];
-      if (username === 'admin' && password === 'password') {
-        /*res.cookie('user', 'admin', {
-          signed: true
-        })*/
-        req.session.user = 'admin';
-        next();
-      } else {
-        return next(err);
-      }
-    }
+    var err = new Error('You are not authenticated !');
+    res.setHeader('WWW-Authenticate', 'Basic');
+    err.status = 401;
+    return next(err);
   } else {
-    if (req.session.user === 'admin') {
+    if (req.session.user === 'authenticated') {
       next();
     } else {
       var err = new Error('You are not authenticated !');
@@ -85,8 +72,7 @@ app.use("/dishes", dishRouter);
 app.use("/promotions", promoRouter);
 app.use("/leaders", leaderRouter);
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
